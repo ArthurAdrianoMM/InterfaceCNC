@@ -7,9 +7,9 @@ st.set_page_config(layout="wide")
 API_URL = "https://interfacecnc-api.onrender.com/cnc-data" 
 refresh_interval = 5  # segundos
 
-st.title("🏠 Monitoramento CNC - Dashboard")
+#st.title("Monitoramento CNC - Dashboard")
 
-# Função para puxar os dados da API
+# puxa dados
 def get_data():
     try:
         response = requests.get(API_URL, timeout=5)
@@ -17,7 +17,7 @@ def get_data():
     except:
         return None
 
-# Estilo customizado
+# estilo
 st.markdown("""
     <style>
         .card {
@@ -28,6 +28,7 @@ st.markdown("""
             color: #0f0;
             font-family: sans-serif;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
         }
         .label {
             font-size: 20px;
@@ -37,10 +38,14 @@ st.markdown("""
             font-size: 36px;
             font-weight: bold;
         }
+        .element-container {
+            padding-right: 15px !important;
+            padding-left: 15px !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# Atualização ao vivo
+# Atualuzacao
 placeholder = st.empty()
 
 while True:
@@ -48,9 +53,9 @@ while True:
 
     if data:
         with placeholder.container():
-            col1, col2, col3, col4 = st.columns(4)
-            col5, col6, col7, col8 = st.columns(4)
-            col9, col10 = st.columns(2)
+            col1, col2, col3, col4 = st.columns([1, 1, 1, 1], gap="large")
+            col5, col6, col7, col8 = st.columns([1, 1, 1, 1], gap="large")
+            col9, col10 = st.columns([1, 1], gap="large")
 
             with col1:
                 st.markdown(f"""<div class='card'><div class='label'>Avanço</div><div class='value'>{data['avanco']} mm/min</div></div>""", unsafe_allow_html=True)
@@ -78,5 +83,5 @@ while True:
     else:
         placeholder.error("Erro ao acessar a API")
 
-    time.sleep(refresh_interval) 
+time.sleep(refresh_interval) 
 
