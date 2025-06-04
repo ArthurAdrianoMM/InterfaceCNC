@@ -2,40 +2,81 @@ import streamlit as st
 import requests
 import time
 
-API_URL = "https://interfacecnc-api.onrender.com/cnc-data"  
+st.set_page_config(layout="wide")
 
-st.set_page_config(page_title="Monitoramento CNC", layout="centered")
-st.title("🛠️ Monitoramento CNC em Tempo Real")
-
-placeholder = st.empty()
+API_URL = "https://interfacecnc-api.onrender.com/cnc-data" 
 refresh_interval = 5  # segundos
 
-while True:
+st.title("🏠 Monitoramento CNC - Dashboard")
+
+# Função para puxar os dados da API
+def get_data():
     try:
-        r = requests.get(API_URL)
-        data = r.json()
-    except Exception as e:
-        placeholder.error(f"Erro na API: {e}")
-        time.sleep(refresh_interval)
-        continue
+        response = requests.get(API_URL, timeout=5)
+        return response.json()
+    except:
+        return None
 
-    with placeholder.container():
-        st.subheader("📌 Parâmetros Operacionais")
-        st.metric("Avanço", f"{data['avanco']} mm/min")
-        st.metric("RPM", f"{data['rpm']} rpm")
-        st.metric("Profundidade de Corte", f"{data['profundidade']} mm")
+# Estilo customizado
+st.markdown("""
+    <style>
+        .card {
+            background-color: #111;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: #0f0;
+            font-family: sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .label {
+            font-size: 20px;
+            color: #888;
+        }
+        .value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-        st.subheader("⚙️ Indicadores de Manutenção")
-        st.metric("MTTR", f"{data['mttr']} h")
-        st.metric("MTTF", f"{data['mttf']} h")
-        st.metric("Fator de Falha (FF)", f"{data['ff']}")
+# Atualização ao vivo
+placeholder = st.empty()
 
-        st.subheader("🔌 Motor")
-        st.metric("Corrente", f"{data['corrente_motor']} A")
-        st.metric("Tensão", f"{data['tensao_motor']} V")
+while True:
+    data = get_data()
 
-        st.subheader("🌀 Vibração")
-        st.metric("Fuso", f"{data['vibracao_fuso']} mm/s")
-        st.metric("Ferramenta", f"{data['vibracao_ferramenta']} mm/s")
+    if data:
+        with placeholder.container():
+            col1, col2, col3, col4 = st.columns(4)
+            col5, col6, col7, col8 = st.columns(4)
+            col9, col10 = st.columns(2)
 
-    time.sleep(refresh_interval)
+            with col1:
+                st.markdown(f"""<div class='card'><div class='label'>Avanço</div><div class='value'>{data['avanco']} mm/min</div></div>""", unsafe_allow_html=True)
+            with col2:
+                st.markdown(f"""<div class='card'><div class='label'>RPM</div><div class='value'>{data['rpm']} rpm</div></div>""", unsafe_allow_html=True)
+            with col3:
+                st.markdown(f"""<div class='card'><div class='label'>Profundidade</div><div class='value'>{data['profundidade']} mm</div></div>""", unsafe_allow_html=True)
+            with col4:
+                st.markdown(f"""<div class='card'><div class='label'>MTTR</div><div class='value'>{data['mttr']} h</div></div>""", unsafe_allow_html=True)
+
+            with col5:
+                st.markdown(f"""<div class='card'><div class='label'>MTTF</div><div class='value'>{data['mttf']} h</div></div>""", unsafe_allow_html=True)
+            with col6:
+                st.markdown(f"""<div class='card'><div class='label'>FF</div><div class='value'>{data['ff']}</div></div>""", unsafe_allow_html=True)
+            with col7:
+                st.markdown(f"""<div class='card'><div class='label'>Corrente Motor</div><div class='value'>{data['corrente_motor']} A</div></div>""", unsafe_allow_html=True)
+            with col8:
+                st.markdown(f"""<div class='card'><div class='label'>Tensão Motor</div><div class='value'>{data['tensao_motor']} V</div></div>""", unsafe_allow_html=True)
+
+            with col9:
+                st.markdown(f"""<div class='card'><div class='label'>Vibração Fuso</div><div class='value'>{data['vibracao_fuso']} mm/s</div></div>""", unsafe_allow_html=True)
+            with col10:
+                st.markdown(f"""<div class='card'><div class='label'>Vibração Ferramenta</div><div class='value'>{data['vibracao_ferramenta']} mm/s</div></div>""", unsafe_allow_html=True)
+
+    else:
+        placeholder.error("Erro ao acessar a API")
+
+    time.sleep(refresh_interval) 
+
